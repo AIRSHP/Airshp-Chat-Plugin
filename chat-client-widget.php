@@ -48,6 +48,7 @@ class AirshpChat extends WP_Widget {
 		$show_info = isset( $instance['show_info'] ) ? $instance['show_info'] : false;
 		//$roomURL = $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
 		$roomURL = $slug.'_2';
+		$client_ip = $_SERVER['REMOTE_ADDR'];
 		
 		echo $before_widget;
 
@@ -62,6 +63,7 @@ class AirshpChat extends WP_Widget {
 			</div>
 			<div class='controls'>
 				<input id = 'roomID' type = 'hidden' value = $roomURL></input>
+				<input id = 'client_ip' type = 'hidden' value = $client_ip></input>
 				<div id='namearea' style='display:none'>
 					<div>
 						<p>Set your chat name</p>
@@ -71,9 +73,15 @@ class AirshpChat extends WP_Widget {
 				</div>
 				<textarea autocomplete='off' class='message-input' cols='40' id='field' name='field' placeholder='Add a comment&hellip;' rows='1'></textarea>
 				<input id='send' type='button' value='POST' />
+				";
+		if ( (current_user_can( 'manage_options' ))) {
+			echo "<input id='clear' type='button' value='CLEAR CHAT' />";
+		}
+
+		echo"
 			</div>		
 		</div>
-    ";
+		";
 		
 		if ( $show_info )
 			printf( $name );

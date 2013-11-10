@@ -23,15 +23,19 @@ jQuery(document).ready(function($){
 		//else socket.io is loaded and we can chat
 		}else{
 			var messages = [];
-			var socket = io.connect('http://tourgigs.com:8080');
+/* 			var socket = io.connect('http://tourgigs.com:8080'); */
+ 			var socket = io.connect('http://localhost:8080'); 
 			var field = document.getElementById("field");
 			var sendButton = document.getElementById("send");
 			var chatroom = document.getElementById("chatroom");
 			var name = document.getElementById("name");
 			var roomID = document.getElementById("roomID");
+			var clearButton = document.getElementById("clear");
+			var clientIP = document.getElementById("client_ip");
 			
 			socket.on('connect', function (data) {
 				socket.emit('join room', roomID.value);
+				//maybe put Welcome message here to slightly reduce server load
 			});	
 			
 		
@@ -83,7 +87,13 @@ jQuery(document).ready(function($){
 				$('body').trigger('chat_update');
 			});
 			
-			
+			socket.on('clearChat', function () {
+				html = '<div class="chat_entry">';
+				html += '<span class="message">Chat cleared by admin!</span>';
+				html +=	'</div>';
+			chatroom.innerHTML = html;
+			});	
+
 		
 			$('#namearea').hide();
 			var setName = function(){
@@ -108,6 +118,9 @@ jQuery(document).ready(function($){
 					field.value = '';
 				}
 			};
+			clearButton.onclick = function() {
+				socket.emit('clear');
+			}
 		}//end check for io
 	}//end check if the  #airshp-chat is on the page
 	
