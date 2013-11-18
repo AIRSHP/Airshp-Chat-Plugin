@@ -23,18 +23,18 @@ jQuery(document).ready(function($){
 		//else socket.io is loaded and we can chat
 		}else{
 			var messages = [];
-			var socket = io.connect('http://tourgigs.com:8080');
+ 			var socket = io.connect('http://tourgigs.com:8080');
 			var field = document.getElementById("field");
 			var sendButton = document.getElementById("send");
 			var chatroom = document.getElementById("chatroom");
 			var name = document.getElementById("name");
 			var roomID = document.getElementById("roomID");
+			var clearButton = document.getElementById("clear");
 			var clientIP = document.getElementById("client_ip");
 			
 			
 			socket.on('connect', function (data) {
 				socket.emit('join room', roomID.value);
-				//maybe put Welcome message here to slightly reduce server load
 			});	
 			
 		
@@ -49,18 +49,17 @@ jQuery(document).ready(function($){
 				    		messages.push(data[i]);
 				    	}
 					}
-					for(var i=0;i<messages.length; i++) {
+					for(var i=0;i<messages.length; i++) {	
 						var bycurrentuserclass = '';						
 						if(messages[i].username && messages[i].username === name.value){
 							bycurrentuserclass = 'currentuser';
-						}else if(!messages[i].username){
+						} else if (!messages[i].username){
 							bycurrentuserclass = 'nouser';
 						}
-						
-						html += '<div class="chat_entry ' + bycurrentuserclass + '">';
+						html += '<div class="chat_entry ' + bycurrentuserclass + '" id= "'+ messages[i]._id + '">';
 						html += '<b>' + escapeHtml(messages[i].username ? messages[i].username : 'Server') + ': </b>';
 						html += '<span class="message">'+ replaceURLWithHTMLLinks(escapeHtml(messages[i].message).replace('\n','<br/>')) + '</span>';
-						html +=	'</div>';
+						html +=	'<div id = "options"><input class = "banUser" type = "button" value = "Ban User" onclick = "banUser(this)"/><input class = "delete" type = "button" value = "Delete Message" onclick = "deleteMessage(this)" /></div></div>';
 					}
 					chatroom.innerHTML = html;
 					chatroom.scrollTop = chatroom.scrollHeight;
@@ -71,21 +70,9 @@ jQuery(document).ready(function($){
 			});
 			
 			socket.on('clearChat', function () {
-				html = '';
-				html += '<div class="chat_entry">';
-				html += '<span class="message">Chat cleared by admin!</span>';
-				html +=	'</div>';
 				messages = [];
-				chatroom.innerHTML = html;
+				chatroom.innerHTML = '';
 			});
-			
-			socket.on('userBanned', function () {
-				html += '<div class="chat_entry">';
-				html += '<span class="message">You have been banned by an admin!</span>';
-				html +=	'</div>';
-				chatroom.innerHTML = html;
-			});		
-
 		
 			$('#namearea').hide();
 			var setName = function(){
@@ -101,10 +88,7 @@ jQuery(document).ready(function($){
 				});
 			};
 			
-			$('#messageOptions').hide();
-			var showOptions = function() {
-				$('#messageOptions').show();
-			};
+			
 			
 			sendButton.onclick = sendMessage = function() {
 				if(name.value == '') {
@@ -115,6 +99,30 @@ jQuery(document).ready(function($){
 					field.value = '';
 				}
 			};
+			
+			clearButton.onclick = function() {
+				socket.emit('clear');
+			};
+			
+			deleteMessage = function(selectedMessage) {
+				var messageID = $(selectedMessage).parent().parent().attr('id');
+				socket.emit('delete', messageID);	
+			};
+			
+/*
+			socket.on('deleteClientSide', function(messageID) {
+				var id = "#" + messageID
+				console.log(id);
+				$(id).text("Deleted By Admin!");
+				$(id).addClass("deleted");
+				messages = [];
+			});
+*/
+			
+			banUser = function(selectedMessage) {
+				var messageID = $(selectedMessage).parent().parent().attr('id');
+				socket.emit('banUser', messageID);	
+			};			
 		};//end check for io
 	};//end check if the  #airshp-chat is on the page
 	

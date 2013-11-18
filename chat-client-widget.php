@@ -11,9 +11,13 @@ define( 'AIRSHPCHAT_PATH', plugin_dir_path(__FILE__) );
 define( 'AIRSHPCHAT_URL', plugin_dir_url(__FILE__) );
 function airshp_chat_scripts() {
 	wp_enqueue_script( 'airshp_chat_socket.io', 'http://tourgigs.com:8080/socket.io/socket.io.js', array( 'jquery' ), date('Y-m-d').'asdfasd', true );
-	wp_enqueue_script( 'airshp_chat_client', AIRSHPCHAT_URL.'client.js', array( 'jquery','childscripts' ), date('Y-m-d'), true );
+/* 	Serve JS page with Admin controls to only users with permissions */
+	if ( (current_user_can( 'manage_options' ))) {
+		wp_enqueue_script( 'airshp_chat_client', AIRSHPCHAT_URL.'clientAdmin.js', array( 'jquery','childscripts' ), date('Y-m-d'), true );
+	} else {
+		wp_enqueue_script( 'airshp_chat_client', AIRSHPCHAT_URL.'client.js', array( 'jquery','childscripts' ), date('Y-m-d'), true );
+	}
 }
-
 
 add_action( 'widgets_init', 'my_widget' );
 function my_widget() {
@@ -77,7 +81,7 @@ class AirshpChat extends WP_Widget {
 		if ( (current_user_can( 'manage_options' ))) {
 			echo "<input id='clear' type='button' value='CLEAR CHAT' />";
 		}
-
+		
 		echo"
 			</div>		
 		</div>
