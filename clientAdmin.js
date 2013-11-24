@@ -111,15 +111,23 @@ jQuery(document).ready(function($){
 				socket.emit('delete', messageID);	
 			};
 			
-/*
-			socket.on('deleteClientSide', function(messageID) {
-				var id = "#" + messageID
-				console.log(id);
-				$(id).text("Deleted By Admin!");
-				$(id).addClass("deleted");
+			enableChat = function() {
+				socket.socket.reconnect() 
+				$('#disable_chat').show();
+				$('#enable_chat').hide();
+				$("#airshp-chat #send, #airshp-chat #field").removeAttr('disabled');
+			}
+			$('#enable_chat').hide();
+			disableChat = function() {
+				html = '';
 				messages = [];
-			});
-*/
+				chatroom.innerHTML = html;
+				socket.emit("leaveChat");
+				$('#enable_chat').show();
+				$('#disable_chat').hide();
+				$('#namearea').hide();
+				$("#airshp-chat #send, #airshp-chat #field").attr('disabled','disabled');
+			}
 			
 			banUser = function(selectedMessage) {
 				var messageID = $(selectedMessage).parent().parent().attr('id');

@@ -62,6 +62,10 @@ class AirshpChat extends WP_Widget {
 		//Display the name 
 		echo "
 		<div id = 'airshp-chat'>
+				<input id = 'disable_chat' type = 'button' value = 'DISABLE CHAT' onclick = 'disableChat()' />
+				<input id = 'enable_chat' type = 'button' value = 'ENABLE CHAT' onclick = 'enableChat()' />
+				<input id = 'popup_chat' type = 'button' value = 'POP OUT CHAT' />
+
 			<div class='chat_pane'>
 				<div id='chatroom'></div>
 			</div>

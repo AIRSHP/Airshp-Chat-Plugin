@@ -25,7 +25,6 @@ jQuery(document).ready(function($){
 			var messages = [];
 						
 			var socket = io.connect('http://airshp-chat_server.nodejitsu.com:80');
-
 /* 			var socket = io.connect('http://tourgigs.com:8080'); */
 			var field = document.getElementById("field");
 			var sendButton = document.getElementById("send");
@@ -109,6 +108,23 @@ jQuery(document).ready(function($){
 				$('#messageOptions').show();
 			};
 			
+			enableChat = function() {
+				socket.socket.reconnect() 
+				$('#disable_chat').show();
+				$('#enable_chat').hide();
+				$("#airshp-chat #send, #airshp-chat #field").removeAttr('disabled');
+			}
+			$('#enable_chat').hide();
+			disableChat = function() {
+				html = '';
+				messages = [];
+				chatroom.innerHTML = html;
+				socket.emit("leaveChat");
+				$('#enable_chat').show();
+				$('#disable_chat').hide();
+				$('#namearea').hide();
+				$("#airshp-chat #send, #airshp-chat #field").attr('disabled','disabled');
+			}
 			sendButton.onclick = sendMessage = function() {
 				if(name.value == '') {
 					//alert('Please type your name!');
