@@ -23,7 +23,10 @@ jQuery(document).ready(function($){
 		//else socket.io is loaded and we can chat
 		}else{
 			var messages = [];
-			var socket = io.connect('http://tourgigs.com:8080');
+						
+			var socket = io.connect('http://airshp-chat_server.nodejitsu.com:80');
+
+/* 			var socket = io.connect('http://tourgigs.com:8080'); */
 			var field = document.getElementById("field");
 			var sendButton = document.getElementById("send");
 			var chatroom = document.getElementById("chatroom");
