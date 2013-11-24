@@ -53,6 +53,7 @@ class AirshpChat extends WP_Widget {
 		//$roomURL = $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
 		$roomURL = $slug.'_2';
 		$client_ip = $_SERVER['REMOTE_ADDR'];
+		$popup = AIRSHPCHAT_URL.'popup.php?chatroom='.$roomURL;
 		
 		echo $before_widget;
 
@@ -64,8 +65,7 @@ class AirshpChat extends WP_Widget {
 		<div id = 'airshp-chat'>
 				<input id = 'disable_chat' type = 'button' value = 'DISABLE CHAT' onclick = 'disableChat()' />
 				<input id = 'enable_chat' type = 'button' value = 'ENABLE CHAT' onclick = 'enableChat()' />
-				<input id = 'popup_chat' type = 'button' value = 'POP OUT CHAT' />
-
+				<input id = 'popup_chat' type = 'button' value = 'POP OUT CHAT' onclick = 'openWindow(&quot;$popup&quot;)'/>
 			<div class='chat_pane'>
 				<div id='chatroom'></div>
 			</div>
@@ -96,25 +96,6 @@ class AirshpChat extends WP_Widget {
 
 		
 		echo $after_widget;
-	}
-
-	//Update the widget 
-	 
-	function update( $new_instance, $old_instance ) {
-		$instance = $old_instance;
-
-		//Strip tags from title and name to remove HTML 
-		$instance['title'] = strip_tags( $new_instance['title'] );
-		$instance['name'] = strip_tags( $new_instance['name'] );
-		$instance['show_info'] = $new_instance['show_info'];
-
-		return $instance;
-	}
-
-	
-	function form( $instance ) {
-
-	
 	}
 }
 

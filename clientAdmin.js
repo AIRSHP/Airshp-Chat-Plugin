@@ -112,7 +112,10 @@ jQuery(document).ready(function($){
 			};
 			
 			enableChat = function() {
-				socket.socket.reconnect() 
+				html = '';
+				messages = [];
+				chatroom.innerHTML = html;
+				socket.socket.connect() 
 				$('#disable_chat').show();
 				$('#enable_chat').hide();
 				$("#airshp-chat #send, #airshp-chat #field").removeAttr('disabled');
@@ -132,7 +135,12 @@ jQuery(document).ready(function($){
 			banUser = function(selectedMessage) {
 				var messageID = $(selectedMessage).parent().parent().attr('id');
 				socket.emit('banUser', messageID);	
-			};			
+			};
+			openWindow = function(url){
+				var strWindowFeatures = "menubar=no,location=no,resizable=0,scrollbars=no,status=yes,width=325,height=450";
+				window.open(url, "CHAT", strWindowFeatures);
+				disableChat();
+			};
 		};//end check for io
 	};//end check if the  #airshp-chat is on the page
 	
