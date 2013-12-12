@@ -18,13 +18,14 @@ jQuery(document).ready(function($){
 			$("#airshp-chat").addClass('serverdown');
 			$('#namearea').hide();
 			$("#airshp-chat #send, #airshp-chat #field").attr('disabled','disabled');
-			$('#chatroom').append('<div class="chat_entry"><b>the chat server is currently offline</b></div>');
+			$('#chatroom').append('<div class="chat_entry nouser"><b>the chat server is currently offline</b></div>');
 			
 		//else socket.io is loaded and we can chat
 		}else{
 			var messages = [];
-/*  			var socket = io.connect('http://tourgigs.com:8080'); */
-			var socket = io.connect('http://airshp-chat_server.nodejitsu.com:80');
+			//var socket = io.connect('http://tourgigs.com:8080'); 
+			var socket = io.connect('http://beta.tourgigs.com:8080'); 
+			//var socket = io.connect('http://airshp-chat_server.nodejitsu.com:80');
 
 			var field = document.getElementById("field");
 			var sendButton = document.getElementById("send");
@@ -61,7 +62,7 @@ jQuery(document).ready(function($){
 						html += '<div class="chat_entry ' + bycurrentuserclass + '" id= "'+ messages[i]._id + '">';
 						html += '<b>' + escapeHtml(messages[i].username ? messages[i].username : 'Server') + ': </b>';
 						html += '<span class="message">'+ replaceURLWithHTMLLinks(escapeHtml(messages[i].message).replace('\n','<br/>')) + '</span>';
-						html +=	'<div id = "options"><input class = "banUser" type = "button" value = "Ban User" onclick = "banUser(this)"/><input class = "delete" type = "button" value = "Delete Message" onclick = "deleteMessage(this)" /></div></div>';
+						html +=	'<div id = "options"><input class = "banUser" type = "button" value = "Ban User" onclick = "banUser(this);return false;"/><input class = "unbanUser" type = "button" value = "Un-Ban User" onclick = "unbanUser(this);return false;"/><input class = "delete" type = "button" value = "Delete MSG" onclick = "deleteMessage(this); return false;" /></div></div>';
 					}
 					chatroom.innerHTML = html;
 					chatroom.scrollTop = chatroom.scrollHeight;
@@ -78,12 +79,12 @@ jQuery(document).ready(function($){
 		
 			$('#namearea').hide();
 			var setName = function(){
-				$('#namearea').show();	
+				$('#namearea').show().find('input').focus();
 				//console.log('showing name field');
 				$('#name').keyup(function(e) {
 					var code = (e.keyCode ? e.keyCode : e.which);
 					if(code == 13) {
-						$('#field').attr('placeholder',$(this).val()+'...');
+						$('#field').attr('placeholder',$(this).val()+'...').focus();
 						$('#namearea').hide();
 						sendMessage();
 					};
@@ -94,11 +95,13 @@ jQuery(document).ready(function($){
 			
 			sendButton.onclick = sendMessage = function() {
 				if(name.value == '') {
-					//alert('Please type your name!');
 					setName();
-				} else {
+				} else if(field.value.trim() != ''){
 					socket.emit('send', { message: field.value, username: name.value, client_ip: clientIP.value});
 					field.value = '';
+				}else{
+					field.value = '';
+					return false;
 				}
 			};
 			
@@ -107,26 +110,33 @@ jQuery(document).ready(function($){
 			};
 			
 			deleteMessage = function(selectedMessage) {
-				var messageID = $(selectedMessage).parent().parent().attr('id');
+				var messageID = $(selectedMessage).closest('.chat_entry').attr('id');
 				socket.emit('delete', messageID);	
 			};
 			
+			$('#enable_chat').hide();
 			enableChat = function() {
-				html = '';
-				messages = [];
-				chatroom.innerHTML = html;
+				//html = '';
+				//messages = [];
+				//chatroom.innerHTML = html;
 				socket.socket.connect() 
+				$("#airshp-chat").addClass('enabled');
+				$("#airshp-chat").removeClass('disabled');
+				
 				$('#disable_chat').show();
 				$('#enable_chat').hide();
 				$("#airshp-chat #send, #airshp-chat #field").removeAttr('disabled');
 			}
-			$('#enable_chat').hide();
+			
 			disableChat = function() {
 				html = '';
 				messages = [];
 				chatroom.innerHTML = html;
 				socket.emit("leaveChat");
-				$('#enable_chat').show();
+				$("#airshp-chat").addClass('disabled');
+				$("#airshp-chat").removeClass('enabled');
+				
+				$('#enable_chat').show().css('display','inline-block');
 				$('#disable_chat').hide();
 				$('#namearea').hide();
 				$("#airshp-chat #send, #airshp-chat #field").attr('disabled','disabled');
@@ -136,9 +146,13 @@ jQuery(document).ready(function($){
 				var messageID = $(selectedMessage).parent().parent().attr('id');
 				socket.emit('banUser', messageID);	
 			};
+			unbanUser = function(selectedMessage) {
+				var messageID = $(selectedMessage).parent().parent().attr('id');
+				socket.emit('unbanUser', messageID);	
+			};
 			openWindow = function(url){
-				var strWindowFeatures = "menubar=no,location=no,resizable=0,scrollbars=no,status=yes,width=325,height=450";
-				window.open(url, "CHAT", strWindowFeatures);
+				var strWindowFeatures = "menubar=no,location=no,resizable=0,scrollbars=no,status=yes,width=325,height=378";
+				window.open(url + '&name=' + name.value, "CHAT", strWindowFeatures);
 				disableChat();
 			};
 		};//end check for io
@@ -159,6 +173,21 @@ jQuery(document).ready(function($){
 			sendMessage();
 		};
 	});
+	
+	//toolbar
+	$('#airshp-chat .chat_tools').each(function(){
+		var tools = $(this);
+		$(this).addClass('closed');
+		$(this).find('.toggle a').click(function(){
+			tools.toggleClass('closed');
+			return false;
+		});
+	});
+	$('#airshp-chat .chat_disabled a').click(function(){
+		enableChat();
+		return false;
+	});
+	
 });		
 			
 			

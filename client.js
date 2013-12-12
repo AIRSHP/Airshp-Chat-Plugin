@@ -24,8 +24,9 @@ jQuery(document).ready(function($){
 		}else{
 			var messages = [];
 						
-			var socket = io.connect('http://airshp-chat_server.nodejitsu.com:80');
-/* 			var socket = io.connect('http://tourgigs.com:8080'); */
+			//var socket = io.connect('http://airshp-chat_server.nodejitsu.com:80');
+ 			//var socket = io.connect('http://tourgigs.com:8080'); 
+ 			var socket = io.connect('http://beta.tourgigs.com:8080'); 
 			var field = document.getElementById("field");
 			var sendButton = document.getElementById("send");
 			var chatroom = document.getElementById("chatroom");
@@ -91,12 +92,13 @@ jQuery(document).ready(function($){
 		
 			$('#namearea').hide();
 			var setName = function(){
-				$('#namearea').show();	
+				$('#namearea').show().find('input').focus();	
+				
 				//console.log('showing name field');
 				$('#name').keyup(function(e) {
 					var code = (e.keyCode ? e.keyCode : e.which);
 					if(code == 13) {
-						$('#field').attr('placeholder',$(this).val()+'...');
+						$('#field').attr('placeholder',$(this).val()+'...').focus();
 						$('#namearea').hide();
 						sendMessage();
 					};
@@ -108,38 +110,49 @@ jQuery(document).ready(function($){
 				$('#messageOptions').show();
 			};
 			
+			$('#enable_chat').hide();
 			enableChat = function() {
-				html = '';
-				messages = [];
-				chatroom.innerHTML = html;
+				//html = '';
+				//messages = [];
+				//chatroom.innerHTML = html;
 				socket.socket.connect() 
+				$("#airshp-chat").addClass('enabled');
+				$("#airshp-chat").removeClass('disabled');
+				
 				$('#disable_chat').show();
 				$('#enable_chat').hide();
 				$("#airshp-chat #send, #airshp-chat #field").removeAttr('disabled');
 			}
-			$('#enable_chat').hide();
+			
 			disableChat = function() {
 				html = '';
 				messages = [];
 				chatroom.innerHTML = html;
 				socket.emit("leaveChat");
-				$('#enable_chat').show();
+				$("#airshp-chat").addClass('disabled');
+				$("#airshp-chat").removeClass('enabled');
+				
+				$('#enable_chat').show().css('display','inline-block');
 				$('#disable_chat').hide();
 				$('#namearea').hide();
 				$("#airshp-chat #send, #airshp-chat #field").attr('disabled','disabled');
 			}
+			
 			sendButton.onclick = sendMessage = function() {
 				if(name.value == '') {
 					//alert('Please type your name!');
 					setName();
-				} else {
+				} else if(field.value.trim() != ''){
 					socket.emit('send', { message: field.value, username: name.value, client_ip: clientIP.value});
 					field.value = '';
+				}else{
+					field.value = '';
+					return false;
 				}
 			};
 			openWindow = function(url){
-				var strWindowFeatures = "menubar=no,location=no,resizable=no,scrollbars=no,status=yes,width=325,height=450";
-				window.open(url, "CHAT", strWindowFeatures);
+				var strWindowFeatures = "menubar=no,location=no,resizable=no,scrollbars=no,status=yes,width=325,height=378";
+				window.open(url + '&name=' + name.value, "CHAT", strWindowFeatures);
 				disableChat();
 			};
 		};//end check for io
@@ -158,4 +171,19 @@ jQuery(document).ready(function($){
 			sendMessage();
 		};
 	});
+	
+	//toolbar
+	$('#airshp-chat .chat_tools').each(function(){
+		var tools = $(this);
+		$(this).addClass('closed');
+		$(this).find('.toggle a').click(function(){
+			tools.toggleClass('closed');
+			return false;
+		});
+	});
+	$('#airshp-chat .chat_disabled a').click(function(){
+		enableChat();
+		return false;
+	});
+	
 });		
